@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Posts with Users</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .post {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    h3 {
+      margin: 0;
+    }
+    small {
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Posts</h1>
+  <div id="posts"></div>
+
+  <script>
+    const postsContainer = document.getElementById("posts");
+
+    async function loadData() {
+      try {
+        // Fetch posts and users
+        const postsRes = await fetch("https://jsonplaceholder.typicode.com/posts");
+        const usersRes = await fetch("https://jsonplaceholder.typicode.com/users");
+
+        const posts = await postsRes.json();
+        const users = await usersRes.json();
+
+        // Combine posts with user names
+        const combinedData = posts.map(post => {
+          const user = users.find(u => u.id === post.userId);
+          return {
+            ...post,
+            username: user ? user.name : "Unknown"
+          };
+        });
+
+        // Display data
+        combinedData.forEach(post => {
+          const div = document.createElement("div");
+          div.className = "post";
+
+          div.innerHTML = `
+            <h3>${post.title}</h3>
+            <small>By: ${post.username}</small>
+            <p>${post.body}</p>
+          `;
+
+          postsContainer.appendChild(div);
+        });
+
+      } catch (error) {
+        postsContainer.innerHTML = "<p>Error loading data</p>";
+        console.error(error);
+      }
+    }
+
+    loadData();
+  </script>
+
+</body>
+</html>
